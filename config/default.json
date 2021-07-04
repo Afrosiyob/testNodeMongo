@@ -1,0 +1,4 @@
+{
+  "mongoUrl": "mongodb+srv://afrosiyob:2230102ab@cluster1.9m3qk.mongodb.net/testNodeMongo?retryWrites=true&w=majority",
+  "PORT": "5000"
+}
