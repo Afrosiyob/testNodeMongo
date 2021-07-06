@@ -1,9 +1,9 @@
-const mongoose = require( "mongoose" )
+const mongoose = require("mongoose")
 
 const { Schema, model, Types } = mongoose
 const { ObjectId } = Types
 
-const schema = new Schema( {
+const schema = new Schema({
     email: {
         type: String,
         required: true,
@@ -17,14 +17,12 @@ const schema = new Schema( {
         type: String,
         default: "user"
     },
-    book: [
-        {
-            type: ObjectId,
-            ref: "Book"
-        }
-    ]
-} )
+    book: [{
+        type: ObjectId,
+        ref: "Book"
+    }]
+})
 
 module.exports = {
-    UserModel: model( "User", schema )
+    UserModel: model("User", schema)
 }
