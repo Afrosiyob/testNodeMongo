@@ -1,20 +1,21 @@
 const { validationResult } = require("express-validator");
-const config = require("config")
+const config = require("config");
 const jwt = require("jsonwebtoken");
 const { UserModel } = require("../models/user.model");
 const path = require("path");
 const multer = require("multer");
 
-const setPermission = (permissions) =>
-    async(req, res, next) => {
-        const { userId } = req.user;
-        const { role } = await UserModel.findById(userId);
-        if (permissions.includes(role)) {
-            next();
-        } else {
-            return res.status(401).json({ message: "u dont have permission this route" });
-        }
-    };
+const setPermission = (permissions) => async(req, res, next) => {
+    const { userId } = req.user;
+    const { role } = await UserModel.findById(userId);
+    if (permissions.includes(role)) {
+        next();
+    } else {
+        return res
+            .status(401)
+            .json({ message: "u dont have permission this route" });
+    }
+};
 
 const checkAuth = async(req, res, next) => {
     if (req.method === "OPTIONS") {
@@ -44,17 +45,16 @@ const checkAuth = async(req, res, next) => {
 };
 
 const validationError = async(req, res, next) => {
-    const errors = validationResult(req)
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
         res.status(400).json({
             errors: errors.array(),
-            message: "please check failds"
-        })
+            message: "please check failds",
+        });
     } else {
-        next()
+        next();
     }
-}
-
+};
 
 // Set
 const storage = multer.diskStorage({
@@ -74,10 +74,22 @@ const upload = multer({
     storage: storage,
 }).single("image");
 
+const getBooks = async(req, res, next) => {
+    const { userId } = req.params;
+    const user = await UserModel.findById(userId);
+    const { role } = user;
+    if (role === "admin") {
+        req.courses = await CourseModal.find();
+    } else {
+        req.courses = await CourseModal.find({ owner: userId });
+    }
+    next();
+};
 
 module.exports = {
     validationError,
     setPermission,
     checkAuth,
-    upload
-}
+    upload,
+    getBooks,
+};
