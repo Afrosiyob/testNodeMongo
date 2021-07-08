@@ -25,8 +25,11 @@ const getBooks = async(req, res) => {
         const { pageNumber, pageSize } = req.query;
         //  /api/books?pagenumber=3&pageSize=10
         const books = await BookModel.find({ owner: req.user.userId })
+            .select("name owner")
+            .populate("owner", "email -_id")
             .skip((parseInt(pageNumber) - 1) * parseInt(pageSize))
             .limit(parseInt(pageSize));
+
         if (!books) {
             res.status(400).json({ message: "nothing" });
         } else {
