@@ -4,50 +4,37 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 
 const authLogin = async(req, res) => {
-    try {
-        const { email, password } = req.body;
-        const checkUser = await UserModel.findOne({ email });
-        if (!checkUser) {
-            res.status(400).json({ message: "this email invalid" });
+    const { email, password } = req.body;
+    const checkUser = await UserModel.findOne({ email });
+    if (!checkUser) {
+        res.status(400).json({ message: "this email invalid" });
+    } else {
+        const isMatch = await bcrypt.compare(password, checkUser.password);
+        if (!isMatch) {
+            res.status(400).json({ message: "password incorrect" });
         } else {
-            const isMatch = await bcrypt.compare(password, checkUser.password);
-            if (!isMatch) {
-                res.status(400).json({ message: "password incorrect" });
-            } else {
-                const token = jwt.sign({ userId: checkUser.id },
-                    config.get("jwtSecret"), { expiresIn: "1d" }
-                );
-                res.status(200).json({
-                    token,
-                    email: checkUser.email,
-                    role: checkUser.role,
-                });
-            }
-        }
-    } catch (error) {
-        res.status(500).json({ message: "error in server" });
-    }
-};
-const authLogout = async(req, res) => {
-    try {} catch (error) {
-        res.status(500).json({ message: "error in server" });
-    }
-};
-
-const authMe = async(req, res) => {
-    try {
-        const checkUser = await UserModel.findById(req.user.userId);
-        if (!checkUser) {
-            res.status(401).json({ message: "auth yuqku brat" });
-        } else {
-            res.json({
-                data: checkUser,
-                message: "hush kelibsiz",
+            const token = jwt.sign({ userId: checkUser.id },
+                config.get("jwtSecret"), { expiresIn: "1d" }
+            );
+            res.status(200).json({
+                token,
+                email: checkUser.email,
+                role: checkUser.role,
             });
         }
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "server error" });
+    }
+};
+const authLogout = async(req, res) => {};
+
+const authMe = async(req, res) => {
+    const checkUser = await UserModel.findById(req.user.userId);
+    if (!checkUser) {
+        res.status(401).json({ message: "auth yuqku brat" });
+    } else {
+        res.json({
+            data: checkUser,
+            message: "hush kelibsiz",
+        });
     }
 };
 
